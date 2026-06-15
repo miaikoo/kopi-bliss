@@ -82,7 +82,7 @@ fun CoffeeBlissApp(viewModel: CoffeeBlissViewModel) {
 }
 
 @Composable
-fun RegistrationScreen() {
+fun RegistrationScreen(viewModel: CoffeeBlissViewModel) {
     var name by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var phone by remember { mutableStateOf("") }
@@ -92,14 +92,17 @@ fun RegistrationScreen() {
         OutlinedTextField(value = name, onValueChange = { name = it }, label = { Text("Nama") }, modifier = Modifier.fillMaxWidth())
         OutlinedTextField(value = email, onValueChange = { email = it }, label = { Text("Email") }, modifier = Modifier.fillMaxWidth())
         OutlinedTextField(value = phone, onValueChange = { phone = it }, label = { Text("No HP") }, modifier = Modifier.fillMaxWidth())
-        Button(onClick = { /* Panggil ViewModel Register */ }, modifier = Modifier.fillMaxWidth()) {
+        Button(
+            onClick = { viewModel.registerMember(name, email, phone) }, 
+            modifier = Modifier.fillMaxWidth()
+        ) {
             Text("Simpan & Daftar")
         }
-    }
-}
+            }
+        }
 
 @Composable
-fun DigitalCardScreen() {
+fun DigitalCardScreen(viewModel: CoffeeBlissViewModel) {
     // Mock Data untuk tampilan UI
     Card(
         modifier = Modifier.fillMaxWidth().height(200.dp),
@@ -116,7 +119,7 @@ fun DigitalCardScreen() {
 }
 
 @Composable
-fun TransactionScreen() {
+fun TransactionScreen(viewModel: CoffeeBlissViewModel) {
     var inputAmount by remember { mutableStateOf("") }
 
     Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
@@ -127,7 +130,13 @@ fun TransactionScreen() {
             label = { Text("Nominal (Rp)") },
             modifier = Modifier.fillMaxWidth()
         )
-        Button(onClick = { /* Panggil ViewModel AddTransaction */ }, modifier = Modifier.fillMaxWidth()) {
+        Button(
+            onClick = { 
+                val amount = inputAmount.toDoubleOrNull() ?: 0.0
+                if(amount > 0) viewModel.addTransaction(amount) 
+            }, 
+            modifier = Modifier.fillMaxWidth()
+        ) {
             Text("Simpan Transaksi")
         }
         
@@ -148,18 +157,18 @@ fun TransactionScreen() {
 }
 
 @Composable
-fun RedeemScreen() {
+fun RedeemScreen(viewModel: CoffeeBlissViewModel) {
     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
         Text("Tukar Poin Anda", style = MaterialTheme.typography.headlineMedium)
         Text("Poin Anda Saat Ini: 15 Poin", style = MaterialTheme.typography.bodyLarge)
         
-        Button(onClick = { /* Tukar 50 Poin */ }, modifier = Modifier.fillMaxWidth()) {
+        Button(onClick = { viewModel.redeemPoints(50) }, modifier = Modifier.fillMaxWidth()) {
             Text("Tukar 50 Poin - Gratis Espresso")
         }
-        Button(onClick = { /* Tukar 100 Poin */ }, modifier = Modifier.fillMaxWidth()) {
+        Button(onClick = { viewModel.redeemPoints(100) }, modifier = Modifier.fillMaxWidth()) {
             Text("Tukar 100 Poin - Gratis Cappuccino")
         }
-        Button(onClick = { /* Tukar 150 Poin */ }, modifier = Modifier.fillMaxWidth()) {
+        Button(onClick = { viewModel.redeemPoints(150) }, modifier = Modifier.fillMaxWidth()) {
             Text("Tukar 150 Poin - Gratis Latte")
         }
     }
