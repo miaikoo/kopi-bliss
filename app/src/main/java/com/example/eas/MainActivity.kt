@@ -4,9 +4,11 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.viewModels // Tambahkan import ini
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.*
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffold
 import androidx.compose.runtime.*
@@ -14,15 +16,30 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import com.example.eas.data.AppDatabase
 import com.example.eas.ui.theme.EASTheme
+import com.example.eas.viewmodel.CoffeeBlissViewModel
 
 class MainActivity : ComponentActivity() {
+
+    // Inisialisasi ViewModel menggunakan Factory
+    private val viewModel: CoffeeBlissViewModel by viewModels {
+        object : ViewModelProvider.Factory {
+            @Suppress("UNCHECKED_CAST")
+            override fun <T : ViewModel> create(modelClass: Class<T>): T {
+                val db = AppDatabase.getDatabase(applicationContext)
+                return CoffeeBlissViewModel(db.coffeeBlissDao()) as T
+            }
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
             EASTheme {
-                CoffeeBlissApp()
+                // Teruskan ViewModel ke UI
+                CoffeeBlissApp(viewModel)
             }
         }
     }
@@ -36,7 +53,7 @@ enum class AppDestinations(val label: String, val icon: Int) {
 }
 
 @Composable
-fun CoffeeBlissApp() {
+fun CoffeeBlissApp(viewModel: CoffeeBlissViewModel) {
     var currentDestination by rememberSaveable { mutableStateOf(AppDestinations.REGISTER) }
 
     NavigationSuiteScaffold(
@@ -54,10 +71,10 @@ fun CoffeeBlissApp() {
         Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
             Box(modifier = Modifier.padding(innerPadding).padding(16.dp)) {
                 when (currentDestination) {
-                    AppDestinations.REGISTER -> RegistrationScreen()
+                    AppDestinations.REGISTER -> RegistrationScreen(viewModel)
                     AppDestinations.CARD -> DigitalCardScreen()
-                    AppDestinations.TRANSACTION -> TransactionScreen()
-                    AppDestinations.REDEEM -> RedeemScreen()
+                    AppDestinations.TRANSACTION -> TransactionScreen(viewModel)
+                    AppDestinations.REDEEM -> RedeemScreen(viewModel)
                 }
             }
         }
